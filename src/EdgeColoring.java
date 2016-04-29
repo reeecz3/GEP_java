@@ -67,7 +67,7 @@ public class EdgeColoring extends GAStringsSeq {
     public static void main(String[] args) {
         System.out.println("EdgeColoring GA...");
         try {
-            LoadData data = new LoadData("dane/100.txt");
+            LoadData data = new LoadData("dane/50.txt");
             EdgeColoring gaEdgeColoring = new EdgeColoring(data.getEdgeCount(), data.posible_genes);
             Thread watek = new Thread(gaEdgeColoring);
             watek.start();
