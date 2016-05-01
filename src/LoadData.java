@@ -1,11 +1,7 @@
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 
 /**
  * @author Mateusz
@@ -19,61 +15,70 @@ public class LoadData {
     public static int[][] macierz;
     public static int chromaticIndex;
 
-    public LoadData(String s) {
+    public LoadData(String s, boolean iChromaIndex) {
 
         GetDataFile(s);
 
-        verticals = new int[edge_count+1][2];
-        
+        verticals = new int[edge_count + 1][2];
+
         int iloscWierzcholkow = 0;
-        
+
         for (int a = 0; a < loaded_data.length; a++) {
             String[] temp = loaded_data[a].split(" ");
             for (int b = 0; b < temp.length - 1; b++) {
                 int VerticalNumber = Integer.valueOf(temp[0]);
                 verticals[VerticalNumber][b] = Integer.valueOf(temp[b + 1]);
-                if(iloscWierzcholkow < Integer.valueOf(temp[b + 1])){
-                	iloscWierzcholkow = Integer.valueOf(temp[b + 1]);
+                if (iloscWierzcholkow < Integer.valueOf(temp[b + 1])) {
+                    iloscWierzcholkow = Integer.valueOf(temp[b + 1]);
                 }
             }
         }
         int krawedz;
         int wierzcholek1;
         int wierzcholek2;
-        macierz = new int[iloscWierzcholkow+1][edge_count+1];
+        macierz = new int[iloscWierzcholkow + 1][edge_count + 1];
         for (int a = 0; a < loaded_data.length; a++) {
-        	String[] temp = loaded_data[a].split(" ");
-        	krawedz = Integer.valueOf(temp[0]);
-        	wierzcholek1 = Integer.valueOf(temp[1]);
-        	wierzcholek2 = Integer.valueOf(temp[2]);
-        	macierz[wierzcholek1][krawedz] = 1;
-        	macierz[wierzcholek2][krawedz] = 1;
+            String[] temp = loaded_data[a].split(" ");
+            krawedz = Integer.valueOf(temp[0]);
+            wierzcholek1 = Integer.valueOf(temp[1]);
+            wierzcholek2 = Integer.valueOf(temp[2]);
+            macierz[wierzcholek1][krawedz] = 1;
+            macierz[wierzcholek2][krawedz] = 1;
         }
-        
+
         int stopien = 0;
         int stopien_nowy = 0;
         for (int a = 0; a < macierz.length; a++) {
-        	if(stopien < stopien_nowy){
-        		stopien = stopien_nowy;
-        	}
-        	stopien_nowy = 0;
-        	for (int b = 0; b < edge_count + 1; b++) {
-        		if(macierz[a][b] == 1){
-        			stopien_nowy++;
-        		}
-        	}
-        }
-        
-        chromaticIndex = iloscWierzcholkow % 2 == 0 ? stopien : stopien+1;
-        posible_genes = "";
-        for (int a = 0; a < chromaticIndex; a++) {
-            posible_genes += String.valueOf(a + 1);
-            if (a != chromaticIndex) {
-                posible_genes += " ";
+            if (stopien < stopien_nowy) {
+                stopien = stopien_nowy;
+            }
+            stopien_nowy = 0;
+            for (int b = 0; b < edge_count + 1; b++) {
+                if (macierz[a][b] == 1) {
+                    stopien_nowy++;
+                }
             }
         }
 
-        
+        chromaticIndex = stopien + 1;
+        if (iChromaIndex) {
+            posible_genes = "";
+            for (int a = 0; a < chromaticIndex; a++) {
+                posible_genes += String.valueOf(a + 1);
+                if (a != chromaticIndex) {
+                    posible_genes += " ";
+                }
+            }
+        } else {
+            posible_genes = "";
+            for (int a = 0; a < edge_count; a++) {
+                posible_genes += String.valueOf(a + 1);
+                if (a != edge_count) {
+                    posible_genes += " ";
+                }
+            }
+        }
+
     }
 
     public void GetDataFile(String s) {
@@ -96,50 +101,48 @@ public class LoadData {
             e.printStackTrace();
         }
     }
-    
 
     public static int getFirstVerticalsEdge(int edge) {
         return verticals[edge][0];
     }
-    
+
     public static int getSecondVerticalsEdge(int edge) {
         return verticals[edge][1];
     }
-    
+
     public int getEdgeCount() {
         return edge_count;
     }
-    
-    public static String getSasiednieKrawedzie(int vertical1, int vertical2){
-    	String wartosc = "";
-        	for (int b = 0; b < edge_count + 1; b++) {
-        		if(macierz[vertical1][b] == 1){
-        			wartosc += String.valueOf(b) + " ";
-        		}
-        	}
-        	
-        	for (int b = 0; b < edge_count + 1; b++) {
-        		if(macierz[vertical2][b] == 1){
-        			wartosc += String.valueOf(b) + " ";
-        		}
-        	}
-        	String [] temp = wartosc.split(" ");
-        	Set<String> set = new HashSet<String>();
 
-            for(int i=0; i < temp.length; i++){
-              if(!set.contains(temp[i])){
+    public static String getSasiednieKrawedzie(int vertical1, int vertical2) {
+        String wartosc = "";
+        for (int b = 0; b < edge_count + 1; b++) {
+            if (macierz[vertical1][b] == 1) {
+                wartosc += String.valueOf(b) + " ";
+            }
+        }
+
+        for (int b = 0; b < edge_count + 1; b++) {
+            if (macierz[vertical2][b] == 1) {
+                wartosc += String.valueOf(b) + " ";
+            }
+        }
+        String[] temp = wartosc.split(" ");
+        Set<String> set = new HashSet<String>();
+
+        for (int i = 0; i < temp.length; i++) {
+            if (!set.contains(temp[i])) {
                 set.add(temp[i]);
-              }
             }
-        	String result = "";
-            
-            for (String s : set)
-            {
-            	result += s + " ";
-            }
-              
-    	return result;
-    	
+        }
+        String result = "";
+
+        for (String s : set) {
+            result += s + " ";
+        }
+
+        return result;
+
     }
 
 }

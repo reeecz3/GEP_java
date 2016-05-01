@@ -5,6 +5,8 @@
  */
 
 import com.softtechdesign.ga.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
@@ -15,15 +17,15 @@ public class EdgeColoring extends GAStringsSeq {
     public EdgeColoring(Integer size, String allowGenes) throws GAException {
         super(size, //size of chromosome
                 200, //population has N chromosomes
-                0.7, //crossover probability
-                1, //random selection chance % (regardless of fitness)
+                0.05, //crossover probability
+                6, //random selection chance % (regardless of fitness)
                 200, //max generations
                 0, //num prelim runs (to build good breeding stock for final/full run)
                 20, //max generations per prelim run
-                0.9, //chromosome mutation prob.
+                0.01, //chromosome mutation prob.
                 0, //number of decimal places in chrom
                 allowGenes.split(" "), //gene space (possible gene values)
-                Crossover.ctRoulette, //crossover type
+                Crossover.ctTwoPoint, //crossover type
                 true); //compute statisitics?
     }
 
@@ -31,9 +33,14 @@ public class EdgeColoring extends GAStringsSeq {
     protected double getFitness(int iChromIndex) {
         ChromStrings chromosome = (ChromStrings) this.getChromosome(iChromIndex);
         double fitness = 0;
+        ArrayList list = new ArrayList();
 
         for (int EdgeNumber = 0; EdgeNumber < chromosomeDim; EdgeNumber++) {
-
+            String Color = chromosome.getGene(EdgeNumber);
+            if (!list.contains(Color)) {
+                list.add(Color);
+            }
+//            
             String temp = "";
             int ve1 = 0;
             int ve2 = 0;
@@ -50,16 +57,20 @@ public class EdgeColoring extends GAStringsSeq {
                 if (NumerKrawedzi != EdgeNumber + 1) {
                     String edgeColorCompare = chromosome.getGene(NumerKrawedzi - 1);
                     if (edgeColor == edgeColorCompare) {
-                        blad = true;
+                        fitness += 1;
+                        continue;
                     }
                 }
             }
-
-            if (blad) {
-                fitness += 1;
-            }
-
         }
+
+//            if (blad) {
+//                
+//            }
+        // Ilosc blednych kolorów - za duzo uzytych
+        int ErrorColor = list.size() - LoadData.chromaticIndex;
+
+        fitness += ErrorColor;
 
         return (1 / fitness);
     }
@@ -67,7 +78,7 @@ public class EdgeColoring extends GAStringsSeq {
     public static void main(String[] args) {
         System.out.println("EdgeColoring GA...");
         try {
-            LoadData data = new LoadData("dane/50.txt");
+            LoadData data = new LoadData("dane/50.txt", false);
             EdgeColoring gaEdgeColoring = new EdgeColoring(data.getEdgeCount(), data.posible_genes);
             Thread watek = new Thread(gaEdgeColoring);
             watek.start();
